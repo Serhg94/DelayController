@@ -22,9 +22,6 @@
 #define SetBit(port, bit) port|= (1<<bit)
 #define ClearBit(port, bit) port&= ~(1<<bit)
 
-#define true 0x1
-#define false 0x0
-
 #define B0 0
 #define B00 0
 #define B000 0

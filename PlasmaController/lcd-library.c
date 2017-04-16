@@ -30,9 +30,7 @@ void lcdSendNibble(char byte, char state)
 	if (state)								// Устанавливаем 1 в RS
 		LCDCONTROLPORT |=(1<<LCD_RS);		// если отдаём данные
 	else
-		LCDCONTROLPORT &= ~(1<<LCD_RS);
-		
-	LCDCONTROLPORT |= (1<<LCD_E);			// Взводим строб
+		LCDCONTROLPORT &= ~(1<<LCD_RS);	
 		
 	LCDDATAPORT &= ~((1<<LCD_D4)|
 					(1<<LCD_D5)|
@@ -50,6 +48,8 @@ void lcdSendNibble(char byte, char state)
 
  	if (byte & (1<<0))
 		LCDDATAPORT |= (1<<LCD_D4);
+		
+	LCDCONTROLPORT |= (1<<LCD_E);			// Взводим строб
 	
 	_delay_us(LCD_STROBEDELAY_US);			// Пауза
 	
@@ -150,11 +150,16 @@ void lcdInit(void)
 	Выполняет начальную инициализацию дисплея. Четырёхбитный режим. 
 */
 {
-	while (lcdIsBusy()) ;	
+	lcdSendNibble(0b0011, LCD_COMMAND);
+	_delay_ms(5);
+	lcdSendNibble(0b0011, LCD_COMMAND);
+	_delay_us(110);
+	lcdSendNibble(0b0011, LCD_COMMAND);
+	while (lcdIsBusy()) ;	                                                              
 	lcdSendNibble(0b0010, LCD_COMMAND);
 	while (lcdIsBusy()) ;
 	lcdRawSendByte(0b00101000, LCD_COMMAND);
-	while (lcdIsBusy()) ;
+	while (lcdIsBusy()) ;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 	lcdRawSendByte(0b00000001, LCD_COMMAND);
 	while (lcdIsBusy()) ;
 	lcdRawSendByte(0b00000110, LCD_COMMAND);
@@ -196,14 +201,17 @@ void lcdClear(void)
 	lcdRawSendByte(0b00000001, LCD_COMMAND);
 }
 
-void lcdGotoXY(char str, char col)
+bool lcdGotoXY(char str, char col)
 /*
 	Устанавливает курсор в заданную позицию.
 */
 {
-	while (lcdIsBusy())	;
+	bool doing = false;
+	while (lcdIsBusy());
 	
 	lcdRawSendByte((0b10000000|((0x40*str)+col)), LCD_COMMAND);
+	while (lcdIsBusy())	doing=true;
+	return doing;
 }
 
 void lcdDisplayScroll(char pos, char dir)

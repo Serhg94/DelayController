@@ -4,6 +4,7 @@
 #include <util/delay.h>
 #include <avr/io.h>
 #include "binary.h"
+#include <stdbool.h>
 
 /*
 	Задержка строба. Эта задержка может быть увеличена, если LCD работает
@@ -123,7 +124,7 @@ void lcdSetDisplay(char state);
 */
 
 void lcdClear(void);
-void lcdGotoXY(char str, char col);
+bool lcdGotoXY(char str, char col);
 void lcdDisplayScroll(char pos, char dir);
 
 /*
